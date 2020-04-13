@@ -2,19 +2,19 @@
 #Project 1 Step 4
 #Name: Gaby Ackermann Logan 
 
-#Import Statements
+#IMPORT STATEMENTS
 import numpy as np
 import matplotlib.pyplot as plt
 import random
 
-#Functions
+#FUNCTIONS
 def openckdfile():
 #this function opens the ckd. txt file and separates classification, glucose, hemoglobin values
 #into separate lists. This function takes no parameters and returns the new lists
     glucose, hemoglobin, classification = np.loadtxt('ckd.csv', delimiter=',', skiprows=1, unpack=True)
     return glucose, hemoglobin, classification
 
-def normalize(glucose, hemolobin, classification):
+def normalize(glucose, hemoglobin, classification):
 #this functions takes the parameters classification, glucose and hemoglobin lists
 # and normailzes each value to fit into the range 0-1. It returns the new arrays of 
 #glucose_scaled, and hemoglobin_scaled
@@ -31,15 +31,12 @@ def normalize(glucose, hemolobin, classification):
     classification = np.array(classification)
     return glucose_scaled, hemoglobin_scaled, classification
 
-def select(K):
-    return np.random.random((K,2))
-
-def generate_centroids(k):
+def generate_centroids(K):
 #This function takes the parameter, k, and assignes a random number to glucose 
 #hemoglobin for each centroid, keeping in the 0-1 range. It then returns the new
 # scaled centroids
     centroids_generated = []
-    for i in range (k):
+    for i in range (K):
         g = random.uniform (0,1)
         h = random.uniform(0,1)
         centroids_generated.append([g,h,i])
@@ -59,7 +56,7 @@ def calculateDistanceArray(newcentroids, glucose_scaled, hemoglobin_scaled):
     return distance_array
 
 def clustering(newcentroids,hemoglobin_scaled, glucose_scaled):
-#This function assigns and updates the centroids locatins and returns the final 
+#This function assigns and updates the centroids' locatins and returns the final 
 #locations and classifications 
 #it takes the the new array of centroids and the scaled hemolgobin and glucose as parameters
     interations = 0
@@ -70,29 +67,50 @@ def clustering(newcentroids,hemoglobin_scaled, glucose_scaled):
             distance = calculateDistanceArray (newcentroids, glucose_scaled, hemoglobin_scaled)
         final_assignments = np.argmin(distance, axis = 0)
         updated_centroids = np.zeros((K,2))
-        assignK = final_assignments.sort()
-        for i in range (K):
-            updated_centroids[i][1]= np.mean(glucose_scaled[assignK==i])
-            updated_centroids[i][0]= np.mean(hemoglobin_scaled[assignK==i])
+        assignK = final_assignments
+        for i in range (K):        
+            updated_centroids[i][1] = np.mean(glucose_scaled[assignK==i])        
+            updated_centroids[i][0] = np.mean(hemoglobin_scaled[assignK==i])    
+        print(updated_centroids)
         interations +=1
     return final_assignments, updated_centroids
 
-def graphingkMeans(glucose_scaled, hemoglobin_scaled, final_assignments,newcentroids):
+def graphingkMeans(glucose_scaled, hemoglobin_scaled, final_assignments,updated_centroids):
 #This fucntion graphs the centroids and the clusters. It has no returns and takes the 
 #scaled hemoglobin, glucose and centroids as parameters
     plt.figure()
-    for i in range(len(updated_centroids)):
-        rcolor = np.random.rand(3,)
-        plt.plot(hemoglobin[final_assignments==i],glucose[final_assignments==i], ".", label = "Class " + str(i), color = rcolor)
-        plt.plot(newcentroids[i, 0], newcentroids[i, 1], "D", label = "Centroid " + str(i), color = rcolor)
+    for i in range(int(final_assignments.max()+1)):
+        rcolor = np.random.rand(3)
+        plt.plot(hemoglobin_scaled[final_assignments==i],glucose_scaled[final_assignments==i], ".", label = "Class " + str(i), color = rcolor)
+        plt.plot(updated_centroids[i,0], updated_centroids[i,1], "D", label = "Centroid " + str(i), color = rcolor)
     plt.xlabel("Hemoglobin")
     plt.ylabel("Glucose")
+    plt.title("K Mean ")
     plt.legend()
     plt.show()
-
-#Main Script
-glucose, hemoglobin, classification = openckdfile()
-glucose_scaled, hemoglobin_scaled, classification = normalize(glucose, hemoglobin, classification)
-newcentroids = select(2)
-final_assignments,updated_centroids = clustering(newcentroids,hemoglobin_scaled, glucose_scaled)
-graphingkMeans(glucose_scaled, hemoglobin_scaled, final_assignments, updated_centroids)
+    
+def accuracycalc(hemoglobin_scaled, glucose_scaled, classification, final_assignments):
+#This function calculates the true positives and negatives and false postives and negatives as a precentrage
+# and prints the percentages of each. It takes 4 paramenters, hemoglobin_scaled, glucose_scaled, classification, final_assignments
+    TruePos = 0
+    FalsePos = 0
+    TrueNeg = 0
+    FalseNeg = 0
+    for i in range(len(classification)):
+        if (final_assignments[i]==0 and classification[i]==0):
+            TruePos += 1
+        if (final_assignments[i]==0 and classification[i]==1):
+            FalsePos += 1
+        if (final_assignments[i]==0 and classification[i]==0):
+            TrueNeg += 1
+        if (final_assignments[i]==1 and classification[i]==0):
+            FalseNeg += 1
+    sensitivity = (TruePos/(TruePos+FalsePos))*100
+    falsePositives = (FalsePos/(FalsePos+TrueNeg))*100
+    specificity = (TrueNeg/(TrueNeg+FalsePos))*100
+    falseNegatives = (FalseNeg/(FalseNeg+TruePos))*100
+    print("The True Positives rate is", sensitivity, "%")
+    print("The False Positives rate is", falsePositives, "%")
+    print("The True Negatives rate  is", specificity, "%")
+    print("The False Negatives rate is", falseNegatives, "%")
+    return TruePos, FalsePos, TrueNeg, FalseNeg
