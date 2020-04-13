@@ -44,8 +44,8 @@ def GraphData(glucose, hemoglobin, classification):
 def Test_case():
 #This Function creates random glucose and hemoglobin values and returns thes values 
 #It takes no parameters
-    newglucose = random.uniform(0,1)
-    newhemoglobin = random.uniform(0,1)
+    newglucose = random.random()
+    newhemoglobin = random.random()
     return newglucose, newhemoglobin
 
 def calculateDistanceArray(newglucose,newhemoglobin, glucose_scaled, hemoglobin_scaled):
@@ -73,9 +73,9 @@ def GraphTestCase(newglucose, newhemoglobin, glucose, hemoglobin, classification
     plt.plot(hemoglobin[classification==1],glucose[classification==1], "k.", label = "Class 1")
     plt.plot(hemoglobin[classification==0],glucose[classification==0], "r.", label = "Class 0")
     if nearest_class ==1:
-        plt.plot(newglucose,newhemoglobin,"b.", markersize = 15, label= "CKD")
+        plt.plot(newglucose,newhemoglobin,"k.", markersize = 15, label= "CKD")
     else:
-        plt.plot(newglucose, newhemoglobin, "g.", markersize = 15, label= "not CKD" )
+        plt.plot(newglucose, newhemoglobin, "r.", markersize = 15, label= "not CKD" )
     plt.xlabel("Hemoglobin")
     plt.ylabel("Glucose")
     plt.title ("Test Case")
@@ -99,7 +99,7 @@ newglucose, newhemoglobin = Test_case()
 GraphData(glucose, hemoglobin, classification)
 calculateDistanceArray(newglucose, newhemoglobin, glucose_scaled, hemoglobin_scaled)
 nearest_class = nearestneighborclassifier(newglucose, newhemoglobin, glucose_scaled, hemoglobin_scaled,classification)
-GraphTestCase(newglucose, newhemoglobin, glucose, hemoglobin, classification, nearest_class)
+GraphTestCase(newglucose, newhemoglobin, glucose_scaled, hemoglobin_scaled, classification, nearest_class)
 knearestneighborclassifier(3,newglucose, newhemoglobin, glucose_scaled, hemoglobin_scaled,classification)
 
 
