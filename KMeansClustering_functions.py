@@ -89,28 +89,33 @@ def graphingkMeans(glucose_scaled, hemoglobin_scaled, final_assignments,updated_
     plt.legend()
     plt.show()
     
-def accuracycalc(hemoglobin_scaled, glucose_scaled, classification, final_assignments):
+def accuracycalc(classification, final_assignments):
 #This function calculates the true positives and negatives and false postives and negatives as a precentrage
 # and prints the percentages of each. It takes 4 paramenters, hemoglobin_scaled, glucose_scaled, classification, final_assignments
     TruePos = 0
     FalsePos = 0
     TrueNeg = 0
     FalseNeg = 0
+    Total = 0
     for i in range(len(classification)):
-        if (final_assignments[i]==0 and classification[i]==0):
+        if (final_assignments[i]==1 and classification[i]==1):
             TruePos += 1
-        if (final_assignments[i]==0 and classification[i]==1):
+            Total +=1
+        if (final_assignments[i]==1 and classification[i]==0):
             FalsePos += 1
+            Total +=1
         if (final_assignments[i]==0 and classification[i]==0):
             TrueNeg += 1
-        if (final_assignments[i]==1 and classification[i]==0):
+            Total +=1
+        if (final_assignments[i]==0 and classification[i]==1):
             FalseNeg += 1
-    sensitivity = (TruePos/(TruePos+FalsePos))*100
-    falsePositives = (FalsePos/(FalsePos+TrueNeg))*100
-    specificity = (TrueNeg/(TrueNeg+FalsePos))*100
-    falseNegatives = (FalseNeg/(FalseNeg+TruePos))*100
-    print("The True Positives rate is", sensitivity, "%")
+            Total +=1
+    truePositives = (TruePos/Total)*100
+    falsePositives = (FalsePos/Total)*100
+    trueNegatives = (TrueNeg/Total)*100
+    falseNegatives = (FalseNeg/Total)*100
+    print("The True Positives rate is", truePositives, "%")
     print("The False Positives rate is", falsePositives, "%")
-    print("The True Negatives rate  is", specificity, "%")
+    print("The True Negatives rate  is", trueNegatives, "%")
     print("The False Negatives rate is", falseNegatives, "%")
     return TruePos, FalsePos, TrueNeg, FalseNeg
